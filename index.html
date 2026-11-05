@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>토끼 소싱 결과표 읽는 법 — 매입 수량과 판매 수량</title>
+<meta name="description" content="토끼 소싱 프로그램 결과표, 매입 수량과 판매 수량만 헷갈리지 않으면 다 읽을 수 있어요.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --bg:#0f1012; --card:#17181b; --inner:#111214; --line:#2a2b2f;
+    --text:#ececec; --sub:#a5a6ab; --gold:#c9a46a; --gold-bg:#2a241b; --red:#d0675f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:Pretendard,-apple-system,"Malgun Gothic",sans-serif;line-height:1.75;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:56px 22px 80px}
+  h1{font-size:clamp(28px,5vw,40px);line-height:1.35;font-weight:800;letter-spacing:-.02em;margin-bottom:22px}
+  .lead{color:var(--sub);font-size:16px;margin-bottom:44px}
+  .tag{display:inline-block;background:var(--gold-bg);color:var(--gold);font-weight:700;font-size:14px;padding:2px 10px;border-radius:6px;margin-right:6px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:30px 30px 26px;margin-bottom:32px}
+  .card h2{font-size:19px;font-weight:700;margin-bottom:22px}
+  .result{border-top:1px solid var(--line);margin-top:26px;padding-top:20px;font-weight:600;font-size:15px}
+  .result b{color:var(--gold);font-weight:700}
+  /* steps */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative}
+  .step{background:var(--inner);border:1px solid var(--line);border-radius:12px;padding:20px 16px;position:relative}
+  .step:not(:last-child)::after{content:"→";position:absolute;right:-12px;top:50%;color:var(--gold);font-size:14px}
+  .num{width:34px;height:34px;border-radius:50%;background:var(--gold);color:#1a1a1a;display:flex;align-items:center;justify-content:center;font-weight:700;margin-bottom:14px}
+  .step h3{font-size:15px;margin-bottom:8px}
+  .step p{color:var(--sub);font-size:14px}
+  /* two col */
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .box{background:var(--inner);border:1px solid var(--line);border-radius:12px;padding:22px}
+  .box.hl{background:var(--gold-bg);border-color:#6b5737}
+  .box h3{font-size:15px;margin-bottom:12px}
+  .box.hl h3,.gold{color:var(--gold)}
+  .box p{color:var(--sub);font-size:14px}
+  ul.dots{list-style:none}
+  ul.dots li{position:relative;padding-left:16px;color:var(--sub);font-size:14px;margin-bottom:6px}
+  ul.dots li::before{content:"";position:absolute;left:2px;top:.75em;width:5px;height:5px;border-radius:50%;background:#777}
+  .box.hl ul.dots li{color:var(--text);font-weight:600}
+  .box.hl ul.dots li::before{background:var(--gold)}
+  ul.check{list-style:none}
+  ul.check li{position:relative;padding-left:28px;font-size:14px;margin-bottom:10px;font-weight:600}
+  ul.check li::before{content:"✓";position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:var(--gold);color:#1a1a1a;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  ul.x li{color:var(--sub);font-weight:500}
+  ul.x li::before{content:"✕";background:var(--red)}
+  .red{color:var(--red)}
+  /* table */
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{color:var(--sub);font-weight:500;text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}
+  td{padding:14px 8px;border-bottom:1px solid var(--line);font-weight:600}
+  td.ok{color:var(--gold)} td.no{color:var(--red)}
+  /* faq & tip */
+  .faq{background:#1a1815;border:1px solid #5a4a30;border-radius:16px;padding:28px 30px;margin-bottom:32px}
+  .faq .q{color:var(--sub);font-size:13px;letter-spacing:.15em;margin-bottom:12px}
+  .faq p{font-weight:600}
+  .tip{display:flex;gap:16px;align-items:flex-start}
+  .tip .ico{flex:0 0 44px;height:44px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:20px}
+  .tip .bubble{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;flex:1}
+  .tip .who{color:var(--sub);font-size:12px;letter-spacing:.15em;margin-bottom:6px}
+  .tip p{font-weight:600}
+  @media (max-width:720px){
+    .wrap{padding:36px 16px 60px}
+    .card{padding:22px 18px}
+    .steps{grid-template-columns:1fr 1fr}
+    .step::after{display:none}
+    .two,.three{grid-template-columns:1fr}
+    table{font-size:13px} th,td{padding:10px 4px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>토끼 소싱 결과표, 이렇게 읽어요 — 매입 수량과 판매 수량</h1>
+  <p class="lead"><span class="tag">먼저 결과부터</span>토끼 프로그램에 단어를 넣으면, 「이 묶음을 사서 → 이 묶음으로 팔면 → 이만큼 남아요」를 엑셀 한 줄로 알려 줘요. 한 줄에 숫자가 셋인데, 그중 「매입 수량」과 「판매 수량」만 헷갈리지 않으면 다 읽을 수 있어요.</p>
+
+  <section class="card">
+    <h2>결과표 받는 네 걸음</h2>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><h3>토끼 아이콘 → 로그인</h3><p>화면 오른쪽 위 토끼. 가입한 전화번호·비밀번호로요. 이미 켜져 있으면 다시 안 켜도 돼요.</p></div>
+      <div class="step"><div class="num">2</div><h3>키워드 넣기</h3><p>「52주 추천상품」 밑의 단어 중 식품을 골라요. 오른쪽 칸에 붙이고 엔터. 여러 개는 쉼표로 (예: 빼빼로, 과메기, 비상식량).</p></div>
+      <div class="step"><div class="num">3</div><h3>엑셀 저장</h3><p>맨 아래 「엑셀 저장」 → 위쪽 다운로드.</p></div>
+      <div class="step"><div class="num">4</div><h3>「소싱결과 최신」 열기</h3><p>결과는 1시간에 한 번쯤 새로 만들어져요. 과메기처럼 잘 안 나올 단어도 넣어도 돼요. 돈 드는 게 아니고, 되는 것만 찾아 줘요.</p></div>
+    </div>
+    <p class="result"><b>그래서 이런 결과 —</b> 단어만 넣으면 팔 수 있는 상품만 골라 엑셀로 와요. 고르는 건 프로그램이 해요.</p>
+  </section>
+
+  <section class="card">
+    <h2>제일 헷갈리는 두 숫자 — 매입 수량 vs 판매 수량</h2>
+    <div class="two">
+      <div class="box">
+        <h3>매입 수량 = 내가 사야 하는 묶음</h3>
+        <ul class="dots"><li>예: 「35개 묶음 35,100원」</li><li>이 묶음을 그 가격에 사라는 뜻이에요</li><li>주문이 들어온 뒤에 사요</li></ul>
+      </div>
+      <div class="box hl">
+        <h3>판매 수량 = 손님께 파는 묶음</h3>
+        <ul class="dots"><li>예: 「7개 묶음」</li><li>7개 묶음 자리에 들어가 팔라는 뜻이에요</li><li>상품명에 적혀 있어요</li></ul>
+      </div>
+    </div>
+    <p class="result"><b>그래서 이런 결과 —</b> 35개를 사서 7개씩 다섯 번 팔아요. 「사는 묶음」과 「파는 묶음」이 다른 게 정상이에요.</p>
+  </section>
+
+  <section class="card">
+    <h2>좌판 비유 — 파는 자리가 따로따로 있어요</h2>
+    <div class="three">
+      <div class="box"><h3 class="gold">2개 파는 자리</h3><p>2개 묶음을 찾는 손님이 와요.</p></div>
+      <div class="box"><h3 class="gold">3개 파는 자리</h3><p>3개 묶음을 찾는 손님이 와요.</p></div>
+      <div class="box"><h3 class="gold">4개 파는 자리</h3><p>20개를 22,000원에 샀다면 「4개 자리에 좌판을 열어라, 한 번에 1,000원쯤 남는다」는 뜻이에요.</p></div>
+    </div>
+    <p class="result"><b>그래서 이런 결과 —</b> 한 상품에 자리가 여러 개라서, 결과표에 같은 상품이 여러 줄 나와요. 다 올려도 돼요.</p>
+  </section>
+
+  <section class="card">
+    <h2>결과표 한 상품 읽기 — 예시: 초콜릿 40개 묶음</h2>
+    <table>
+      <thead><tr><th>파는 묶음</th><th>파는 값</th><th>한 번 팔면 남는 돈</th><th>판정</th></tr></thead>
+      <tbody>
+        <tr><td>11개 묶음</td><td>21,588원</td><td>약 2,200원</td><td class="ok">올려요</td></tr>
+        <tr><td>12개 묶음</td><td>—</td><td>약 2,400원</td><td class="ok">올려요</td></tr>
+        <tr><td>3개 묶음</td><td>—</td><td>약 2,900원</td><td class="ok">올려요</td></tr>
+        <tr><td>2개 묶음</td><td>—</td><td>약 1,000원</td><td class="ok">올려요</td></tr>
+        <tr><td>낱개</td><td>—</td><td>마이너스</td><td class="no">넘겨요 (패스)</td></tr>
+      </tbody>
+    </table>
+    <p class="result"><b>그래서 이런 결과 —</b> 매입은 「40개 묶음 54,000원(개당 1,355원)」 한 가지. 파는 자리는 여러 개. 마이너스 줄만 빼고 다 올려요.</p>
+  </section>
+
+  <section class="card">
+    <h2>결과표 볼 때 이것만</h2>
+    <div class="two">
+      <div class="box hl">
+        <h3>이렇게 해요</h3>
+        <ul class="check">
+          <li>마이너스·「패스」 줄은 거른다</li>
+          <li>같은 상품의 여러 묶음을 다 올려도 된다 — 손님마다 사는 묶음이 달라요</li>
+          <li>「신뢰도 높음」이어도 처음엔 강사님께 한 번 물어본다</li>
+          <li>「수익」 칸과 「매입가」 칸을 구분한다</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3 class="red">이건 안 해요</h3>
+        <ul class="check x">
+          <li>제일 많이 남는 묶음 하나만 올리기</li>
+          <li>이상하게 비싼 묶음을 그대로 믿기 (예: 4개에 14만 원대 → 네이버 정보가 틀린 걸 수 있어요. 실제 값을 확인)</li>
+          <li>화장품·의류 키워드로 돌리기 — 식품에서 제일 잘 돼요</li>
+        </ul>
+      </div>
+    </div>
+    <p class="result"><b>그래서 이런 결과 —</b> 거를 건 「마이너스」와 「이상하게 비싼 것」 둘뿐이에요. 나머지는 올려요.</p>
+  </section>
+
+  <section class="faq">
+    <p class="q">왜 한 상품을 넣었는데 다른 상품까지 나와요?</p>
+    <p>프로그램은 잘 팔리는 할인 상품을 찾으면 그 주변 경쟁 상품까지 넓혀 찾아요. 한 오메가3 회사가 30% 할인하면 경쟁사도 따라 하거든요. 갈비집이 잘되면 옆에 비슷한 집이 생기는 것과 같아요. 그래서 결과가 섞여 보이면 상품명 기준으로 정렬해서 봐요.</p>
+  </section>
+
+  <div class="tip">
+    <div class="ico">💬</div>
+    <div class="bubble">
+      <p class="who">스탭이 옆에서 한마디</p>
+      <p>결과표는 「후보」예요. 올리기 전에 꼭 매입처 확인을 한 번 거쳐요. 숫자가 맞는지 보는 건 프로그램이 못 하는 유일한 일이에요.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
